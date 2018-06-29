@@ -92,7 +92,8 @@ namespace Reducer
                         sw.WriteLine(item.Key.id + ";" + item.Key.name + ";" + item.Value);
                     }
                 }
-            
+
+            ReduceByCompany();
         }
 
 
@@ -123,6 +124,62 @@ namespace Reducer
             foreach (var item in ReducedDictionary)
             {
                 Console.WriteLine(item.Key.name + " : " + item.Value);
+            }
+        }
+
+        public void ReduceByCompany()
+        {
+            Dictionary<ProductionCompany, double> LoadedData = new Dictionary<ProductionCompany, double>();
+            // Load txt
+            using (StreamReader sr = new StreamReader("Svereduce.txt"))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    string[] splitter = line.Split(';');
+                    ProductionCompany pc = new ProductionCompany();
+                    pc.id = Int32.Parse(splitter[0]);
+                    pc.name = splitter[1].Split(' ')[0];
+                    double value = Double.Parse(splitter[2]);
+
+                    LoadedData.Add(pc, value);
+                }
+            }
+            // Reduce
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("=== Reducing by company ===");
+            Console.WriteLine();
+            Console.WriteLine();
+            var valuePairs = LoadedData.GroupBy(val => val.Key.name).ToDictionary(k => k.Key, v => v.ToDictionary(k1 => k1.Key, v1 => v1.Value));
+
+            Dictionary<ProductionCompany, double> Reduced = new Dictionary<ProductionCompany, double>();
+
+            foreach (var item in valuePairs)
+            {
+                double sum = 0;
+                ProductionCompany pc = new ProductionCompany();
+                foreach (var value in item.Value)
+                {
+                    sum += value.Value;
+                    pc = value.Key;
+                }
+                Reduced.Add(pc, sum);
+            }
+
+            Console.WriteLine("===Reduced===");
+            foreach (var item in Reduced)
+            {
+                Console.WriteLine(item.Key.name + " : " + item.Value);
+            }
+
+            // Upis finalnog reduca u txt fajl
+            using (StreamWriter sw = new StreamWriter("finalReduce.txt"))
+            {
+                foreach (var item in Reduced)
+                {
+                    sw.WriteLine(item.Key.id + ";" + item.Key.name + ";" + item.Value);
+                }
             }
         }
     }
