@@ -69,16 +69,15 @@ namespace Client
         {
             int counter = 0;
             int reducerPort = 5002;
+            int quota = 15;
             try
             {
                 foreach (var prox in proxyList)
                 {
-                    prox.Map(Movies.Skip(counter).Take(5).ToList(), reducerPort.ToString());
-                    counter += 5;
+                    prox.Map(Movies.Skip(counter).Take(quota).ToList(), reducerPort.ToString());
+                    counter += quota;
                     reducerPort++;
-
                 }
-                
             }
             catch (Exception)
             {
